@@ -1,0 +1,7 @@
+{
+  "name": "ebulletinIAM",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

@@ -1,13 +1,78 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>ReportCard</ion-title>
+    <ion-title>Bulletins</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">ReportCard</ion-title>
+      <ion-title size="large">Bulletins</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Formulaire bulletin</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      @if (students.length === 0) {
+        <ion-note>Ajoutez au moins un étudiant avant de créer un bulletin.</ion-note>
+      }
+      <form (ngSubmit)="addReportCard()" class="report-card-form">
+        <ion-item>
+          <ion-label position="stacked">Étudiant</ion-label>
+          <ion-select name="studentId" required [(ngModel)]="reportCardForm.studentId">
+            @for (student of students; track student.id) {
+              <ion-select-option [value]="student.id">{{ student.nom }} {{ student.prenom }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Moyenne sur 20</ion-label>
+          <ion-input name="moyenne" type="number" min="0" max="20" required [(ngModel)]="reportCardForm.moyenne"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Rang</ion-label>
+          <ion-input name="rang" type="number" min="1" required [(ngModel)]="reportCardForm.rang"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Appréciation</ion-label>
+          <ion-textarea name="appreciation" required auto-grow="true" [(ngModel)]="reportCardForm.appreciation"></ion-textarea>
+        </ion-item>
+        <ion-button type="submit" expand="block" [disabled]="students.length === 0">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Ajouter
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Liste des bulletins</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      @if (reportCards.length === 0) {
+        <ion-note>Aucun bulletin ajouté.</ion-note>
+      } @else {
+        <ion-list>
+          @for (reportCard of reportCards; track reportCard.id) {
+            <ion-item>
+              <ion-label>
+                <h2>{{ getStudentName(reportCard.studentId) }}</h2>
+                <p>Moyenne : {{ reportCard.moyenne }}/20 - Rang : {{ reportCard.rang }}</p>
+                <p>{{ reportCard.appreciation }}</p>
+              </ion-label>
+              <ion-buttons slot="end">
+                <ion-button color="danger" fill="clear" (click)="deleteReportCard(reportCard.id)">
+                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </ion-card-content>
+  </ion-card>
 </ion-content>

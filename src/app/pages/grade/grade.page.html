@@ -1,13 +1,77 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Grade</ion-title>
+    <ion-title>Notes</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Grade</ion-title>
+      <ion-title size="large">Notes</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Formulaire note</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      @if (students.length === 0 || subjects.length === 0) {
+        <ion-note>Ajoutez au moins un étudiant et une matière avant de saisir une note.</ion-note>
+      }
+      <form (ngSubmit)="addGrade()" class="grade-form">
+        <ion-item>
+          <ion-label position="stacked">Étudiant</ion-label>
+          <ion-select name="studentId" required [(ngModel)]="gradeForm.studentId">
+            @for (student of students; track student.id) {
+              <ion-select-option [value]="student.id">{{ student.nom }} {{ student.prenom }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Matière</ion-label>
+          <ion-select name="subjectId" required [(ngModel)]="gradeForm.subjectId">
+            @for (subject of subjects; track subject.id) {
+              <ion-select-option [value]="subject.id">{{ subject.libelle }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Note sur 20</ion-label>
+          <ion-input name="note" type="number" min="0" max="20" required [(ngModel)]="gradeForm.note"></ion-input>
+        </ion-item>
+        <ion-button type="submit" expand="block" [disabled]="students.length === 0 || subjects.length === 0">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Ajouter
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Liste des notes</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      @if (grades.length === 0) {
+        <ion-note>Aucune note ajoutée.</ion-note>
+      } @else {
+        <ion-list>
+          @for (grade of grades; track grade.id) {
+            <ion-item>
+              <ion-label>
+                <h2>{{ getStudentName(grade.studentId) }}</h2>
+                <p>{{ getSubjectName(grade.subjectId) }} - {{ grade.note }}/20</p>
+              </ion-label>
+              <ion-buttons slot="end">
+                <ion-button color="danger" fill="clear" (click)="deleteGrade(grade.id)">
+                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </ion-card-content>
+  </ion-card>
 </ion-content>

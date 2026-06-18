@@ -1,13 +1,32 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Dashboard</ion-title>
+    <ion-title>Tableau de bord</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Dashboard</ion-title>
+      <ion-title size="large">Tableau de bord</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <ion-grid>
+    <ion-row>
+      @for (item of items; track item.url) {
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="dashboard-card" [routerLink]="item.url">
+            <ion-card-header>
+              <ion-icon [name]="item.icon"></ion-icon>
+              <ion-card-title>{{ item.title }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <strong>{{ item.count }}</strong>
+              <span>élément(s) enregistré(s)</span>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
 </ion-content>

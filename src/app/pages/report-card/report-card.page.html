@@ -13,62 +13,79 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Formulaire bulletin</ion-card-title>
+      <ion-card-title>Generer un bulletin</ion-card-title>
     </ion-card-header>
+
     <ion-card-content>
       @if (students.length === 0) {
-        <ion-note>Ajoutez au moins un étudiant avant de créer un bulletin.</ion-note>
+        <ion-note>Ajoutez au moins un etudiant avant de generer un bulletin.</ion-note>
+      } @else if (grades.length === 0) {
+        <ion-note>Ajoutez des notes avant de generer un bulletin.</ion-note>
       }
-      <form (ngSubmit)="addReportCard()" class="report-card-form">
+
+      <form class="report-card-form">
         <ion-item>
-          <ion-label position="stacked">Étudiant</ion-label>
-          <ion-select name="studentId" required [(ngModel)]="reportCardForm.studentId">
+          <ion-label position="stacked">Etudiant</ion-label>
+          <ion-select name="studentId" [(ngModel)]="selectedStudentId" (ionChange)="generateSelectedReportCard()">
             @for (student of students; track student.id) {
               <ion-select-option [value]="student.id">{{ student.nom }} {{ student.prenom }}</ion-select-option>
             }
           </ion-select>
         </ion-item>
-        <ion-item>
-          <ion-label position="stacked">Moyenne sur 20</ion-label>
-          <ion-input name="moyenne" type="number" min="0" max="20" required [(ngModel)]="reportCardForm.moyenne"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="stacked">Rang</ion-label>
-          <ion-input name="rang" type="number" min="1" required [(ngModel)]="reportCardForm.rang"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="stacked">Appréciation</ion-label>
-          <ion-textarea name="appreciation" required auto-grow="true" [(ngModel)]="reportCardForm.appreciation"></ion-textarea>
-        </ion-item>
-        <ion-button type="submit" expand="block" [disabled]="students.length === 0">
-          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-          Ajouter
-        </ion-button>
       </form>
     </ion-card-content>
   </ion-card>
 
+  @if (selectedStudentId && selectedReportCard) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Bulletin de {{ getStudentName(selectedReportCard.studentId) }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list>
+          @for (grade of getStudentGrades(selectedReportCard.studentId); track grade.id) {
+            <ion-item>
+              <ion-label>
+                <h2>{{ getSubjectName(grade.subjectId) }}</h2>
+                <p>Note : {{ grade.note }}/20 - Coefficient {{ getSubjectCoefficient(grade.subjectId) }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+
+        <div class="report-card-summary">
+          <p>Moyenne : {{ selectedReportCard.moyenne }}/20</p>
+          <p>Rang : {{ selectedReportCard.rang }}</p>
+          <p>Appreciation : {{ selectedReportCard.appreciation }}</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  } @else if (selectedStudentId) {
+    <ion-card>
+      <ion-card-content>
+        <ion-note>Cet etudiant n'a pas encore de note.</ion-note>
+      </ion-card-content>
+    </ion-card>
+  }
+
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Liste des bulletins</ion-card-title>
+      <ion-card-title>Bulletins disponibles</ion-card-title>
     </ion-card-header>
+
     <ion-card-content>
       @if (reportCards.length === 0) {
-        <ion-note>Aucun bulletin ajouté.</ion-note>
+        <ion-note>Aucun bulletin disponible. Ajoutez des notes aux etudiants.</ion-note>
       } @else {
         <ion-list>
-          @for (reportCard of reportCards; track reportCard.id) {
+          @for (reportCard of reportCards; track reportCard.studentId) {
             <ion-item>
               <ion-label>
                 <h2>{{ getStudentName(reportCard.studentId) }}</h2>
                 <p>Moyenne : {{ reportCard.moyenne }}/20 - Rang : {{ reportCard.rang }}</p>
                 <p>{{ reportCard.appreciation }}</p>
               </ion-label>
-              <ion-buttons slot="end">
-                <ion-button color="danger" fill="clear" (click)="deleteReportCard(reportCard.id)">
-                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-                </ion-button>
-              </ion-buttons>
             </ion-item>
           }
         </ion-list>

@@ -19,7 +19,7 @@
       <form (ngSubmit)="addSubject()" class="subject-form">
         <ion-item>
           <ion-label position="stacked">Code</ion-label>
-          <ion-input name="code" required [(ngModel)]="subjectForm.code"></ion-input>
+          <ion-note>{{ subjectForm.code }}</ion-note>
         </ion-item>
         <ion-item>
           <ion-label position="stacked">Libellé</ion-label>

@@ -84,6 +84,9 @@ export class DashboardPage {
   }
 
   private refreshItems(): void {
+    const grades = this.gradeServices.getGrades();
+    const subjects = this.subjectServices.getSubjects();
+
     this.items = [
       {
         title: 'Étudiants',
@@ -99,13 +102,13 @@ export class DashboardPage {
       },
       {
         title: 'Notes',
-        count: this.gradeServices.getGrades().length,
+        count: grades.length,
         url: '/grade',
         icon: 'bar-chart-outline',
       },
       {
         title: 'Bulletins',
-        count: this.reportCardServices.getReportCards().length,
+        count: this.reportCardServices.generateReportCards(grades, subjects).length,
         url: '/report-card',
         icon: 'document-text-outline',
       },

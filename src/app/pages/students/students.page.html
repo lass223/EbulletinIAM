@@ -20,7 +20,7 @@
       <form (ngSubmit)="addStudent()" class="student-form">
         <ion-item>
           <ion-label position="stacked">Matricule</ion-label>
-          <ion-input name="matricule" required [(ngModel)]="studentForm.matricule"></ion-input>
+          <ion-note>{{ studentForm.matricule }}</ion-note>
         </ion-item>
 
         <ion-item>
@@ -35,13 +35,19 @@
 
         <ion-item>
           <ion-label position="stacked">Classe</ion-label>
-          <ion-input name="classe" required [(ngModel)]="studentForm.classe"></ion-input>
+          <ion-select name="classe" required [(ngModel)]="studentForm.classe">
+            @for (classe of classes; track classe) {
+              <ion-select-option [value]="classe">{{ classe }}</ion-select-option>
+            }
+          </ion-select>
         </ion-item>
 
         <ion-item>
           <ion-label position="stacked">Date de naissance</ion-label>
-          <ion-input name="dateNaissance" type="date" required [(ngModel)]="studentForm.dateNaissance"></ion-input>
+          <ion-input name="dateNaissance" type="date" required [max]="maxBirthDate" [(ngModel)]="studentForm.dateNaissance"></ion-input>
         </ion-item>
+
+        <ion-note color="medium">L'etudiant doit avoir au moins 6 ans.</ion-note>
 
         <ion-button type="submit" expand="block">
           <ion-icon name="person-add-outline" slot="start"></ion-icon>

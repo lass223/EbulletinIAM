@@ -2,33 +2,30 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonButton,
-  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
   IonContent,
   IonHeader,
-  IonIcon,
-  IonInput,
   IonItem,
   IonLabel,
   IonList,
   IonNote,
   IonSelect,
   IonSelectOption,
-  IonTextarea,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { addCircleOutline, trashOutline } from 'ionicons/icons';
 
+import { Grade } from '../../models/grade';
 import { ReportCard } from '../../models/report-card';
 import { Student } from '../../models/student';
+import { Subject } from '../../models/subject';
+import { GradeServices } from '../../services/grade-services';
 import { ReportCardServices } from '../../services/report-card-services';
 import { StudentServices } from '../../services/student-services';
+import { SubjectServices } from '../../services/subject-services';
 
 @Component({
   selector: 'app-report-card',
@@ -38,37 +35,36 @@ import { StudentServices } from '../../services/student-services';
   imports: [
     CommonModule,
     FormsModule,
-    IonButton,
-    IonButtons,
     IonCard,
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
     IonContent,
     IonHeader,
-    IonIcon,
-    IonInput,
     IonItem,
     IonLabel,
     IonList,
     IonNote,
     IonSelect,
     IonSelectOption,
-    IonTextarea,
     IonTitle,
     IonToolbar,
   ],
 })
 export class ReportCardPage {
   reportCards: ReportCard[] = [];
+  selectedReportCard: ReportCard | null = null;
+  selectedStudentId = 0;
   students: Student[] = [];
-  reportCardForm: ReportCard = this.emptyReportCard();
+  grades: Grade[] = [];
+  subjects: Subject[] = [];
 
   constructor(
     private reportCardServices: ReportCardServices,
-    private studentServices: StudentServices
+    private studentServices: StudentServices,
+    private gradeServices: GradeServices,
+    private subjectServices: SubjectServices
   ) {
-    addIcons({ addCircleOutline, trashOutline });
     this.refreshData();
   }
 
@@ -76,49 +72,44 @@ export class ReportCardPage {
     this.refreshData();
   }
 
-  addReportCard(): void {
-    if (!this.isFormValid()) {
-      return;
-    }
-
-    this.reportCardServices.addReportCard({
-      id: Date.now(),
-      studentId: Number(this.reportCardForm.studentId),
-      moyenne: Number(this.reportCardForm.moyenne),
-      rang: Number(this.reportCardForm.rang),
-      appreciation: this.reportCardForm.appreciation.trim(),
-    });
-    this.reportCards = this.reportCardServices.getReportCards();
-    this.reportCardForm = this.emptyReportCard();
-  }
-
-  deleteReportCard(id: number): void {
-    this.reportCardServices.deleteReportCard(id);
-    this.reportCards = this.reportCardServices.getReportCards();
+  generateSelectedReportCard(): void {
+    this.selectedReportCard = this.reportCardServices.generateReportCard(
+      Number(this.selectedStudentId),
+      this.grades,
+      this.subjects
+    );
   }
 
   getStudentName(studentId: number): string {
     const student = this.students.find((item) => item.id === studentId);
-    return student ? `${student.nom} ${student.prenom}` : 'Étudiant inconnu';
+    return student ? `${student.nom} ${student.prenom}` : 'Etudiant inconnu';
+  }
+
+  getStudentGrades(studentId: number): Grade[] {
+    return this.grades.filter((grade) => grade.studentId === studentId);
+  }
+
+  getSubjectName(subjectId: number): string {
+    return (
+      this.subjects.find((subject) => subject.id === subjectId)?.libelle ??
+      'Matiere inconnue'
+    );
+  }
+
+  getSubjectCoefficient(subjectId: number): number {
+    return (
+      this.subjects.find((subject) => subject.id === subjectId)?.coefficient ?? 1
+    );
   }
 
   private refreshData(): void {
-    this.reportCards = this.reportCardServices.getReportCards();
     this.students = this.studentServices.getStudents();
-  }
-
-  private emptyReportCard(): ReportCard {
-    return { id: 0, studentId: 0, moyenne: 0, rang: 1, appreciation: '' };
-  }
-
-  private isFormValid(): boolean {
-    const moyenne = Number(this.reportCardForm.moyenne);
-    return Boolean(
-      Number(this.reportCardForm.studentId) &&
-        moyenne >= 0 &&
-        moyenne <= 20 &&
-        Number(this.reportCardForm.rang) > 0 &&
-        this.reportCardForm.appreciation.trim()
+    this.grades = this.gradeServices.getGrades();
+    this.subjects = this.subjectServices.getSubjects();
+    this.reportCards = this.reportCardServices.generateReportCards(
+      this.grades,
+      this.subjects
     );
+    this.generateSelectedReportCard();
   }
 }

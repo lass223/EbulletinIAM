@@ -16,6 +16,8 @@ import {
   IonLabel,
   IonList,
   IonNote,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
@@ -23,6 +25,7 @@ import { addIcons } from 'ionicons';
 import { personAddOutline, trashOutline } from 'ionicons/icons';
 
 import { Student } from '../../models/student';
+import { GradeServices } from '../../services/grade-services';
 import { StudentServices } from '../../services/student-services';
 
 @Component({
@@ -47,17 +50,32 @@ import { StudentServices } from '../../services/student-services';
     IonLabel,
     IonList,
     IonNote,
+    IonSelect,
+    IonSelectOption,
     IonTitle,
     IonToolbar,
   ],
 })
 export class StudentsPage {
   students: Student[] = [];
-  studentForm: Student = this.emptyStudent();
+  studentForm: Student = {
+    id: 0,
+    matricule: '',
+    nom: '',
+    prenom: '',
+    classe: '',
+    dateNaissance: '',
+  };
+  classes = ['1er', '2e', '3e', '4e', '5e', '6e', '7e', '8e', '9e', '10e', '11e', '12e'];
+  maxBirthDate = this.getMaxBirthDate();
 
-  constructor(private studentServices: StudentServices) {
+  constructor(
+    private studentServices: StudentServices,
+    private gradeServices: GradeServices
+  ) {
     addIcons({ personAddOutline, trashOutline });
     this.students = this.studentServices.getStudents();
+    this.studentForm = this.emptyStudent();
   }
 
   addStudent() {
@@ -68,7 +86,7 @@ export class StudentsPage {
     this.studentServices.addStudent({
       ...this.studentForm,
       id: Date.now(),
-      matricule: this.studentForm.matricule.trim(),
+      matricule: this.studentServices.generateMatricule(),
       nom: this.studentForm.nom.trim(),
       prenom: this.studentForm.prenom.trim(),
       classe: this.studentForm.classe.trim(),
@@ -81,13 +99,14 @@ export class StudentsPage {
 
   deleteStudent(id: number) {
     this.studentServices.deleteStudent(id);
+    this.gradeServices.deleteGradesByStudent(id);
     this.students = this.studentServices.getStudents();
   }
 
   private emptyStudent(): Student {
     return {
       id: 0,
-      matricule: '',
+      matricule: this.studentServices.generateMatricule(),
       nom: '',
       prenom: '',
       classe: '',
@@ -97,11 +116,20 @@ export class StudentsPage {
 
   private isFormValid(): boolean {
     return Boolean(
-      this.studentForm.matricule.trim() &&
-        this.studentForm.nom.trim() &&
+      this.studentForm.nom.trim() &&
         this.studentForm.prenom.trim() &&
         this.studentForm.classe.trim() &&
-        this.studentForm.dateNaissance
+        this.isAtLeastSixYearsOld(this.studentForm.dateNaissance)
     );
+  }
+
+  private getMaxBirthDate(): string {
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 6);
+    return today.toISOString().split('T')[0];
+  }
+
+  private isAtLeastSixYearsOld(dateNaissance: string): boolean {
+    return Boolean(dateNaissance && dateNaissance <= this.maxBirthDate);
   }
 }

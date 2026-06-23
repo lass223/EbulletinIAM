@@ -1,7 +1,6 @@
 .report-card-form {
   display: grid;
   gap: 12px;
-  margin-top: 12px;
 }
 
 ion-card {
@@ -10,4 +9,15 @@ ion-card {
 
 ion-button[type='submit'] {
   margin-top: 8px;
+}
+
+.report-card-summary {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--ion-color-light);
+
+  p {
+    margin: 4px 0;
+  }
 }
